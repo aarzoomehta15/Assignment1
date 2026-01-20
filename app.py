@@ -1,9 +1,17 @@
-from flask import Flask, render_template, request # type: ignore
+from flask import Flask, render_template, request
 import os
 import re
-import smtplib
-from email.message import EmailMessage
+import requests
+import base64
+from dotenv import load_dotenv
 from topsis import topsis
+
+load_dotenv()
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+if not RESEND_API_KEY:
+    raise Exception("RESEND_API_KEY not set in .env")
 
 app = Flask(__name__)
 
@@ -11,31 +19,20 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-from dotenv import load_dotenv # type: ignore
-import os
-
-load_dotenv()
-
-
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")      
-APP_PASSWORD = os.getenv("APP_PASSWORD")    
-
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        file = request.files["file"]
+        file = request.files.get("file")
         weights = request.form.get("weights")
         impacts = request.form.get("impacts")
         email = request.form.get("email")
 
-        # Basic validations
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return "Invalid email format"
 
-        if file.filename == "":
+        if not file or file.filename == "":
             return "No file selected"
 
-        # Save file
         input_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
         file.save(input_path)
 
@@ -46,40 +43,42 @@ def home():
         except Exception as e:
             return str(e)
 
-        # Send email
         try:
-            msg = EmailMessage()
-            msg["Subject"] = "TOPSIS Result"
-            msg["From"] = SENDER_EMAIL
-            msg["To"] = email
-            msg.set_content("Please find the attached TOPSIS result file.")
-
             with open(output_path, "rb") as f:
-                msg.add_attachment(
-                    f.read(),
-                    maintype="application",
-                    subtype="octet-stream",
-                    filename="result.csv"
-                )
+                file_data = f.read()
 
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(SENDER_EMAIL, APP_PASSWORD)
-                server.send_message(msg)
+            encoded_file = base64.b64encode(file_data).decode("utf-8")
+
+            response = requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "from": "onboarding@resend.dev",
+                    "to": [email],
+                    "subject": "TOPSIS Result",
+                    "text": "Please find the attached TOPSIS result file.",
+                    "attachments": [
+                        {
+                            "filename": "result.csv",
+                            "content": encoded_file
+                        }
+                    ]
+                }
+            )
+
+            if response.status_code not in [200, 201]:
+                return f"Email failed: {response.text}"
 
         except Exception as e:
-            return "Error sending email: " + str(e)
+            return f"Error sending email: {e}"
 
         return "TOPSIS completed and result sent to email!"
 
     return render_template("index.html")
 
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=10000)
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
