@@ -1,0 +1,4 @@
+Model,Cost,Quality,Durability,Topsis Score,Rank
+A,250,7,8,0.5,2
+B,200,6,9,0.33842503100317545,3
+C,300,8,7,0.6615749689968246,1
