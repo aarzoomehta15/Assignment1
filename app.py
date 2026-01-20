@@ -8,6 +8,7 @@ from topsis import topsis
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 from dotenv import load_dotenv # type: ignore
@@ -51,7 +52,7 @@ def home():
             msg["Subject"] = "TOPSIS Result"
             msg["From"] = SENDER_EMAIL
             msg["To"] = email
-            msg.set_content("Please find attached the TOPSIS result file.")
+            msg.set_content("Please find the attached TOPSIS result file.")
 
             with open(output_path, "rb") as f:
                 msg.add_attachment(
@@ -74,3 +75,8 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
