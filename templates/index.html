@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TOPSIS Web Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h2>TOPSIS Calculator</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <label>Upload CSV File</label>
+            <input type="file" name="file" required>
+
+            <label>Weights (comma separated)</label>
+            <input type="text" name="weights" placeholder="1,1,1" required>
+
+            <label>Impacts (+ or -)</label>
+            <input type="text" name="impacts" placeholder="+,+,-" required>
+
+            <label>Email ID</label>
+            <input type="email" name="email" placeholder="example@gmail.com" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="name"><p>by: aarzoo mehta :) </p></div>
+
+</body>
+</html>
