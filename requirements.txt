@@ -1,5 +1,5 @@
-Flask
+flask
+requests
+python-dotenv
 pandas
 numpy
-python-dotenv
-gunicorn
