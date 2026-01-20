@@ -34,6 +34,28 @@ In this part, the TOPSIS algorithm is deployed as a **web-based service**, allow
 ### Live Application
 https://topsis-web-cqkw.onrender.com
 
+## User Interface
+
+![TOPSIS Web UI](screenshots/ui_input.png)
+
+### Sample Input
+| Model | Cost | Quality | Durability |
+|------|------|--------|-----------|
+| A    | 250  | 7      | 8         |
+| B    | 200  | 6      | 9         |
+| C    | 300  | 8      | 7         |
+
+## Output Result
+
+![TOPSIS Output](screenshots/mail.png)
+
+### Sample Output
+| Model | Cost | Quality | Durability | Topsis Score | Rank |
+|------|------|--------|-----------|--------------|------|
+| A    | 250  | 7      | 8         | 0.5000       | 2    |
+| B    | 200  | 6      | 9         | 0.4511695353 | 3    |
+| C    | 300  | 8      | 7         | 0.5488304647 | 1    |
+
 ### Technology Stack
 
 - Backend: Python, Flask , Resend API(to send mails)
